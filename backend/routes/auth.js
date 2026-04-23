@@ -4,6 +4,17 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 
+// Temporary: Create admin
+router.get('/create-admin', async (req, res) => {
+  const hash = await bcrypt.hash('admin123', 10);
+  await pool.query('DELETE FROM users WHERE email=$1', ['admin@crm.com']);
+  await pool.query(
+    'INSERT INTO users (name, email, password_hash, role) VALUES ($1,$2,$3,$4)',
+    ['Admin User', 'admin@crm.com', hash, 'admin']
+  );
+  res.json({ message: 'Admin created!', password: 'admin123' });
+});
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   const { name, email, password, role } = req.body;
